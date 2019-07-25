@@ -22,6 +22,16 @@
       "presentation": {
         "group": "apps"
       }
+    },
+    {
+      "label": "SAGA",
+      "type": "npm",
+      "script": "start",
+      "path": "app-saga/",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "apps"
+      }
     }
    
   ]
