@@ -1,3 +1,5 @@
+import { put, takeEvery, call } from "redux-saga/effects";
+
 const BACKEND_URL = "http://localhost:7000/greetings?slow";
 
 function apiRequestStart(description) {
@@ -14,10 +16,10 @@ function setGreetings(greetings) {
   };
 }
 
-function loadGreetingsSuccess(greetingsLoaded) {
-  return dispatch => {
-    dispatch(setGreetings(greetingsLoaded));
-    dispatch(requestSuccess());
+// action
+export function loadGreetings() {
+  return {
+    type: "LOAD_GREETINGS"
   };
 }
 
@@ -43,14 +45,17 @@ async function fetchGreetings() {
   return response.json();
 }
 
-export function loadGreetingsFromServer() {
-  return async dispatch => {
-    dispatch(apiRequestStart("Loading"));
-    fetchGreetings(BACKEND_URL).then(
-      greetings => dispatch(loadGreetingsSuccess(greetings)),
-      error => dispatch(requestFailure(error))
-    );
-  };
+function* loadGreetingsFromServer() {
+  yield put(apiRequestStart("Loading"));
+  let greetingsLoaded;
+  try {
+    greetingsLoaded = yield call(fetchGreetings, BACKEND_URL);
+  } catch (err) {
+    yield put(requestFailure(err));
+    return;
+  }
+  yield put(setGreetings(greetingsLoaded));
+  yield put(requestSuccess());
 }
 
 async function postGreeting(greeting) {
@@ -75,19 +80,32 @@ function addGreeting(newGreeting) {
   };
 }
 
-function saveGreetingSuccess(greeting) {
-  return dispatch => {
-    dispatch(requestSuccess());
-    dispatch(addGreeting(greeting));
-  };
+export function* saveGreetingToServer(action) {
+  yield put(apiRequestStart("Saving"));
+  let savedGreeting;
+  try {
+    savedGreeting = yield call(postGreeting, action.newGreeting);
+  } catch (error) {
+    yield put(requestFailure(error));
+    return;
+  }
+
+  yield put(requestSuccess());
+  yield put(addGreeting(savedGreeting));
 }
 
 export function saveGreeting(newGreeting) {
-  return async dispatch => {
-    dispatch(apiRequestStart("Saving"));
-    return postGreeting(newGreeting).then(
-      greeting => dispatch(saveGreetingSuccess(greeting)),
-      error => dispatch(requestFailure(error))
-    );
+  return {
+    type: "SAVE_GREETING",
+    newGreeting
   };
+}
+
+// saga
+// Note: normally we'd split Sagas and Actions
+// but to make the code better comparable between the
+// frameworks, we use the same file structure
+export function* greetingSagas() {
+  yield takeEvery("LOAD_GREETINGS", loadGreetingsFromServer);
+  yield takeEvery("SAVE_GREETING", saveGreetingToServer);
 }

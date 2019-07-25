@@ -6,7 +6,7 @@ import Chart from "./Chart";
 import { useSelector, useDispatch } from "react-redux";
 import LoadingIndicator from "./LoadingIndicator";
 
-import { loadGreetingsFromServer } from "./greeting-actions";
+import { loadGreetings } from "./greeting-actions";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ export default function App() {
   const loadingError = useSelector(state => state.greetings.error);
 
   React.useEffect(() => {
-    dispatch(loadGreetingsFromServer());
+    dispatch(loadGreetings());
   }, [dispatch]);
 
   if (loadingError) {
@@ -26,7 +26,7 @@ export default function App() {
         </div>
         <h1>Error while loading data!</h1>
         <p>{loadingError.toString()}</p>
-        <button onClick={() => dispatch(loadGreetingsFromServer())}>Try again</button>
+        <button onClick={() => dispatch(loadGreetings())}>Try again</button>
       </div>
     );
   }
@@ -54,6 +54,9 @@ export default function App() {
       <div className="Right">
         <Chart />
       </div>
+      <button onClick={() => dispatch({ type: "LOAD_GREETINGS", x: "fasdfd", y: 123 })}>
+        Load
+      </button>
     </div>
   );
 }

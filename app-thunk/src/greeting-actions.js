@@ -14,13 +14,6 @@ function setGreetings(greetings) {
   };
 }
 
-function loadGreetingsSuccess(greetingsLoaded) {
-  return dispatch => {
-    dispatch(setGreetings(greetingsLoaded));
-    dispatch(requestSuccess());
-  };
-}
-
 function requestSuccess() {
   return {
     type: "API_REQUEST_SUCCESS"
@@ -47,7 +40,10 @@ export function loadGreetingsFromServer() {
   return async dispatch => {
     dispatch(apiRequestStart("Loading"));
     fetchGreetings(BACKEND_URL).then(
-      greetings => dispatch(loadGreetingsSuccess(greetings)),
+      greetingsLoaded => {
+        dispatch(setGreetings(greetingsLoaded));
+        dispatch(requestSuccess());
+      },
       error => dispatch(requestFailure(error))
     );
   };
@@ -75,18 +71,14 @@ function addGreeting(newGreeting) {
   };
 }
 
-function saveGreetingSuccess(greeting) {
-  return dispatch => {
-    dispatch(requestSuccess());
-    dispatch(addGreeting(greeting));
-  };
-}
-
 export function saveGreeting(newGreeting) {
   return async dispatch => {
     dispatch(apiRequestStart("Saving"));
     return postGreeting(newGreeting).then(
-      greeting => dispatch(saveGreetingSuccess(greeting)),
+      greeting => {
+        dispatch(requestSuccess());
+        dispatch(addGreeting(greeting));
+      },
       error => dispatch(requestFailure(error))
     );
   };
