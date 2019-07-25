@@ -2,6 +2,16 @@
 
 This repository contains the same application implemented using different "async frameworks" for redux.
 
+The frontends are implemented with React, Redux, react-redux.
+
+The differences between the examples and underlying frameworks only affect:
+
+- setting up the store (`store.js`)
+- action creator (`greeting-actions.js`)
+
+Consuming state and dispatching actions from the application does not differ. (Note that the examples
+using React and Redux Hooks API)
+
 ## Setup
 
 The applications contain with a simple Express backend, that you have to start first:
