@@ -1,10 +1,10 @@
-# Redux Playground: Comparsion of different Redux async frameworks
+# Redux Playground: Comparsion of different Redux async middlewares
 
-This repository contains the same application implemented using different "async frameworks" for redux.
+This repository contains the same application implemented using different "async middlewares" for redux.
 
 The frontends are implemented with React, Redux, react-redux.
 
-The differences between the examples and underlying frameworks only affect:
+The differences between the examples and underlying middlewares only affect:
 
 - setting up the store (`store.js`)
 - action creator (`greeting-actions.js`)
@@ -14,7 +14,7 @@ using React and Redux Hooks API)
 
 ## Setup
 
-The applications contain with a simple Express backend, that you have to start first:
+The example contains a simple Express backend, that is required by the frontend apps. Please start this backend first:
 
 ```bash
 cd server

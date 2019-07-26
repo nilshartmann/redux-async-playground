@@ -80,7 +80,7 @@ function addGreeting(newGreeting) {
   };
 }
 
-export function* saveGreetingToServer(action) {
+function* saveGreetingToServer(action) {
   yield put(apiRequestStart("Saving"));
   let savedGreeting;
   try {
