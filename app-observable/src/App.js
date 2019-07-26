@@ -54,9 +54,7 @@ export default function App() {
       <div className="Right">
         <Chart />
       </div>
-      <button onClick={() => dispatch({ type: "LOAD_GREETINGS", x: "fasdfd", y: 123 })}>
-        Load
-      </button>
+      <button onClick={() => dispatch(loadGreetings())}>Load</button>
     </div>
   );
 }

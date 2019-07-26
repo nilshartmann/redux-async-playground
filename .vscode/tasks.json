@@ -32,6 +32,16 @@
       "presentation": {
         "group": "apps"
       }
+    },
+    {
+      "label": "OBSERVABLE",
+      "type": "npm",
+      "script": "start",
+      "path": "app-observable/",
+      "problemMatcher": [],
+      "presentation": {
+        "group": "apps"
+      }
     }
    
   ]

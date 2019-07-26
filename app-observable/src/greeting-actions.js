@@ -1,5 +1,7 @@
-import { put, takeEvery, call } from "redux-saga/effects";
-
+// import { put, takeEvery, call } from "redux-saga/effects";
+import { from, of, concat } from "rxjs";
+import { filter, mapTo, map, flatMap, catchError } from "rxjs/operators";
+import { combineEpics, ofType } from "redux-observable";
 const BACKEND_URL = "http://localhost:7000/greetings?slow";
 
 function apiRequestStart(description) {
@@ -45,17 +47,19 @@ async function fetchGreetings() {
   return response.json();
 }
 
-function* loadGreetingsFromServer() {
-  yield put(apiRequestStart("Loading"));
-  let greetingsLoaded;
-  try {
-    greetingsLoaded = yield call(fetchGreetings, BACKEND_URL);
-  } catch (err) {
-    yield put(requestFailure(err));
-    return;
-  }
-  yield put(setGreetings(greetingsLoaded));
-  yield put(requestSuccess());
+// (https://github.com/redux-observable/redux-observable/issues/62#issuecomment-266337873)
+// 👉https://github.com/redux-observable/redux-observable/issues/62#issuecomment-405112422
+function loadGreetingsEpic(action$) {
+  return action$.pipe(
+    ofType("LOAD_GREETINGS"),
+    flatMap(() =>
+      concat(
+        of(apiRequestStart("Loading")),
+        from(fetchGreetings()).pipe(map(greetings => setGreetings(greetings))),
+        of(requestSuccess())
+      ).pipe(catchError(err => of(requestFailure(err))))
+    )
+  );
 }
 
 async function postGreeting(greeting) {
@@ -80,18 +84,19 @@ function addGreeting(newGreeting) {
   };
 }
 
-export function* saveGreetingToServer(action) {
-  yield put(apiRequestStart("Saving"));
-  let savedGreeting;
-  try {
-    savedGreeting = yield call(postGreeting, action.newGreeting);
-  } catch (error) {
-    yield put(requestFailure(error));
-    return;
-  }
-
-  yield put(requestSuccess());
-  yield put(addGreeting(savedGreeting));
+function saveGreetingsEpic(action$) {
+  return action$.pipe(
+    ofType("SAVE_GREETING"),
+    flatMap(action =>
+      concat(
+        of(apiRequestStart("Saving")),
+        from(postGreeting(action.newGreeting)).pipe(
+          map(savedGreeting => addGreeting(savedGreeting))
+        ),
+        of(requestSuccess())
+      ).pipe(catchError(err => of(requestFailure(err))))
+    )
+  );
 }
 
 export function saveGreeting(newGreeting) {
@@ -101,11 +106,21 @@ export function saveGreeting(newGreeting) {
   };
 }
 
-// saga
-// Note: normally we'd split Sagas and Actions
-// but to make the code better comparable between the
-// frameworks, we use the same file structure
-export function* greetingSagas() {
-  yield takeEvery("LOAD_GREETINGS", loadGreetingsFromServer);
-  yield takeEvery("SAVE_GREETING", saveGreetingToServer);
-}
+const pingEpic = action$ => {
+  return action$.pipe(
+    // every actions comes in here (stream of actions)
+    filter(action => {
+      // console.log("action", action);
+      return action.type === "PING";
+    }),
+    mapTo({ type: "PONG" })
+  );
+};
+
+const pongEpic = action$ =>
+  action$.pipe(
+    ofType("PONG"),
+    mapTo({ type: "BOOM" })
+  );
+
+export const greetingEpic = combineEpics(pingEpic, pongEpic, loadGreetingsEpic, saveGreetingsEpic);

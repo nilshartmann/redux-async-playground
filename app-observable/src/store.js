@@ -1,13 +1,13 @@
 import { createStore, applyMiddleware, compose } from "redux";
-import createSagaMiddleware from "redux-saga";
+import { createEpicMiddleware } from "redux-observable";
 import greetingApp from "./reducers";
-import { greetingSagas } from "./greeting-actions";
+import { greetingEpic } from "./greeting-actions";
 
-const sagaMiddleware = createSagaMiddleware();
+const epicMiddleware = createEpicMiddleware();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ trace: true }) || compose;
 
-const store = createStore(greetingApp, composeEnhancers(applyMiddleware(sagaMiddleware)));
+const store = createStore(greetingApp, composeEnhancers(applyMiddleware(epicMiddleware)));
 
-sagaMiddleware.run(greetingSagas);
+epicMiddleware.run(greetingEpic);
 
 export default store;

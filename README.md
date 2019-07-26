@@ -47,3 +47,19 @@ npm start
 ```
 
 This frontend runs on `http://localhost:8087`. So make sure, port 8087 is not in use.
+
+## Redux Observable example
+
+**Folder:** `app-observable`
+
+```bash
+cd server
+npm install
+npm start
+```
+
+This frontend runs on `http://localhost:8089`. So make sure, port 8089 is not in use.
+
+# Contact
+
+If you have questions or comments, please feel free to open an issue in this repo. You can also reach [me](https://nilshartmann.net) on [Twitter](https://twitter.com/nilshartmann).
